@@ -1,0 +1,1 @@
+## This Repository contains the daily task for the Agentic AI learning and maintains all the day wise and task wise folders in a structure manner

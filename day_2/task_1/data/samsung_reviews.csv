@@ -1,0 +1,4 @@
+product,review_text,reviewer_id,sentiment
+Samsung Galaxy A54,Camera quality is decent but struggles in low light.,rev101,neutral
+Samsung Galaxy A54,"Very affordable and good design, but heating issues.",rev102,negative
+Samsung Galaxy A54,Performance is smooth and price is reasonable.,rev103,positive

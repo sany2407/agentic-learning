@@ -1,0 +1,6 @@
+chromadb 
+PyMuPDF 
+google-generativeai 
+python-dotenv 
+tqdm 
+sentence-transformers

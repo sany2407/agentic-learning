@@ -1,0 +1,4 @@
+product,review_text,reviewer_id,sentiment
+OnePlus Nord,"Worth every penny. Fast, responsive, and great battery.",rev201,positive
+OnePlus Nord,The screen is dull and gets scratches easily.,rev202,negative
+OnePlus Nord,"Camera is okay, not flagship level.",rev203,neutral

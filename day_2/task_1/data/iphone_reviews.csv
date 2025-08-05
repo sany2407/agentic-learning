@@ -1,0 +1,4 @@
+product,review_text,reviewer_id,sentiment
+iPhone 14,"The battery life is amazing, lasts a full day easily.",rev001,positive
+iPhone 14,Battery drains quickly after a few months.,rev002,negative
+iPhone 14,"Great camera and design, but performance lags at times.",rev003,mixed
