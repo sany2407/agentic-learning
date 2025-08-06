@@ -39,8 +39,7 @@ Focus on fundamental, theoretical, and applied aspects suitable for educational 
 # System Prompt for synthesizing answers
 SUMMARY_SYSTEM_PROMPT = """
 You are a knowledgeable educator summarizing answers for academic study. 
-Provide a concise, accurate summary based only on the provided search results from educational sources. 
-If no relevant results, state 'No sufficient educational resources found.' 
+Provide a concise, accurate summary based only on the provided search results from educational sources.
 Keep the summary to 3-5 sentences, emphasizing key concepts.
 """
 
@@ -68,10 +67,8 @@ def gather_resources(state: State) -> State:
     resources = []
     for question in state['questions']:
         search_results = search_tool.invoke(question)
-        filtered_results = [
-            res for res in search_results.get('results', [])
-            if any(domain in res['url'] for domain in ['.edu', 'khanacademy.org'])
-        ][:3]  # Limit to 3 results per question
+        # Remove domain filtering: include all results
+        filtered_results = search_results.get('results', [])[:3]  # Limit to 3 results per question
         # Use Gemini with system prompt to synthesize a concise answer
         messages = [SystemMessage(content=SUMMARY_SYSTEM_PROMPT),
                     HumanMessage(content=f"Question: {question}\nSearch Results: {filtered_results}")]
@@ -138,6 +135,6 @@ def generate_resource_list(topic: str) -> str:
     return f"Resource list generated and saved to {saved_file}"
 
 # Test with a sample topic
-topic = "Thermodynamics"
+topic = "Data Analytics"
 result = generate_resource_list(topic)
 print(result)
