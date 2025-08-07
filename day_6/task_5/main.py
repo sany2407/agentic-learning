@@ -37,7 +37,7 @@ def create_chroma_vectorstore(documents, embedding_function, persist_directory="
     Creates or loads a Chroma vector store from given documents and saves data persistently.
     """
     seed_docs = [
-    Document(page_content="/Users/subashkannan/Desktop/agentic-learning-main/day_6/task_5/Learn-French-the-Fast-and-Fun-Way french free.pdf"),
+    Document(page_content="your-path"),
 ]
     try:
         vectordb = Chroma.from_documents(
