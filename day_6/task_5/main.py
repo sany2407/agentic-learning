@@ -5,8 +5,10 @@ from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain.agents import initialize_agent, AgentType
 from langchain_community.vectorstores import Chroma
 from langchain.schema import Document
-from langchain_tavily import TavilySearch  
+from langchain_tavily import TavilySearch
 import warnings
+import datetime  # Added for timestamps
+from PyPDF2 import PdfReader  # Added for PDF text extraction
 
 # Temporarily disable warning suppression for debugging
 # warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -17,7 +19,7 @@ def get_gemini_llm():
     if not api_key:
         raise ValueError("Please set the GOOGLE_API_KEY environment variable.")
     # Initialize Gemini chat model
-    llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", temperature=0)
+    llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0)
     return llm
 
 # === 2. Tavily Search Tool (Updated to use langchain_tavily) ===
@@ -32,13 +34,25 @@ def create_tavily_tool() -> Tool:
     return tavily
 
 # === 3. Chroma Vector Store Setup ===
-def create_chroma_vectorstore(documents, embedding_function, persist_directory="chroma_db"):
+def create_chroma_vectorstore(embedding_function, persist_directory="chroma_db"):
     """
-    Creates or loads a Chroma vector store from given documents and saves data persistently.
+    Creates or loads a Chroma vector store and initializes with seed documents.
+    Now handles PDF text extraction for seed docs.
     """
-    seed_docs = [
-    Document(page_content="your-path"),
-]
+    # Example seed documents, including PDF text extraction
+    seed_docs = []
+    
+    # Load text from PDF if path provided
+    pdf_path = "your_pdf_path_here.pdf"  # Replace with actual PDF path
+    if os.path.exists(pdf_path):
+        reader = PdfReader(pdf_path)
+        pdf_text = ""
+        for page in reader.pages:
+            pdf_text += page.extract_text() + "\n"
+        seed_docs.append(Document(page_content=pdf_text, metadata={"source": "PDF - Learn French"}))
+    else:
+        print(f"Warning: PDF path '{pdf_path}' not found. Skipping.")
+    
     try:
         vectordb = Chroma.from_documents(
             documents=seed_docs,
@@ -89,10 +103,10 @@ def save_to_markdown(content: str, filename: str = "language_learning_output.md"
     """
     Saves the generated content to a Markdown file.
     """
-    with open(filename, "w", encoding="utf-8") as f:
-        f.write("# Language Learning Agent Output\n\n")
+    with open(filename, "a", encoding="utf-8") as f:  # Changed to append for conversational history
+        f.write("\n\n---\n\n")  # Separator for each interaction
         f.write(content)
-    print(f"Output saved to: {filename}")
+    print(f"Output appended to: {filename}")
 
 # === 6. Main program & agent integration ===
 def main():
@@ -107,16 +121,8 @@ def main():
     # Use Google's Gemini embedding model for vector embeddings
     embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
 
-    # Example seed documents (could be extended or updated dynamically)
-    seed_docs = [
-        Document(page_content="Basic Spanish grammar includes verb conjugations.",
-                 metadata={"source": "language_tips"}),
-        Document(page_content="French verb conjugations vary with tense and subject pronoun.",
-                 metadata={"source": "language_tips"})
-    ]
-
     # Create or load persistent Chroma vector store
-    vectordb = create_chroma_vectorstore(seed_docs, embeddings, persist_directory="chroma_db")
+    vectordb = create_chroma_vectorstore(embeddings)
 
     # Setup retriever from Chroma vector store (top 3 similar docs)
     retriever = vectordb.as_retriever(search_kwargs={"k": 3})
@@ -135,29 +141,51 @@ def main():
         return_intermediate_steps=False
     )
 
-    # Example user query
-    user_query = (
-        "Give me grammar tips for beginner French focusing on verb conjugations, "
-        "also generate practice exercises for the same."
-    )
+    # Conversational loop
+    chat_history = []  # Maintain chat history for the agent
+    print("Welcome to the Language Learning Agent! Type your query or 'exit' to quit.")
+    
+    while True:
+        user_query = input("\nYou: ").strip()
+        if user_query.lower() == "exit":
+            break
+        
+        # Retrieve relevant docs from vector store as context
+        relevant_docs = retriever.invoke(user_query)
+        context = "\n".join([doc.page_content for doc in relevant_docs])
 
-    # Retrieve relevant docs from vector store as context
-    relevant_docs = retriever.invoke(user_query) 
-    context = "\n".join([doc.page_content for doc in relevant_docs])
+        # Combine context with query for richer input to agent
+        full_prompt = f"{user_query}\n\nRelevant context:\n{context}"
 
-    # Combine context with query for richer input to agent
-    full_prompt = f"{user_query}\n\nRelevant context:\n{context}"
+        # Run agent with chat history
+        response = agent.invoke({"input": full_prompt, "chat_history": chat_history})
+        
+        # Extract output
+        if isinstance(response, dict) and 'output' in response:
+            agent_output = response['output']
+        else:
+            agent_output = str(response)
+            print("Warning: Unexpected response format.")
+        
+        print("\nAgent:", agent_output)
+        
+        # Save to Markdown
+        save_to_markdown(f"User: {user_query}\nAgent: {agent_output}")
+        
+        # Store the response in Chroma DB for future retrieval
+        timestamp = datetime.datetime.now().isoformat()
+        new_doc = Document(
+            page_content=agent_output,
+            metadata={"source": "agent_response", "query": user_query, "timestamp": timestamp}
+        )
+        vectordb.add_documents([new_doc])  # Dynamically add to vector store
+        print("Response stored in Chroma DB.")
+        
+        # Update chat history (simple append for context)
+        chat_history.append(f"User: {user_query}")
+        chat_history.append(f"Agent: {agent_output}")
 
-    # Run agent and get response (provide empty chat_history)
-    response = agent.invoke({"input": full_prompt, "chat_history": []})
-
-    print("Agent Response:\n", response)
-
-    # Save the generated response to a Markdown file (extract string from dict)
-    if isinstance(response, dict) and 'output' in response:
-        save_to_markdown(response['output'])
-    else:
-        print("Error: Unexpected response format from agent.")
+    print("Conversation ended.")
 
 if __name__ == "__main__":
     main()
