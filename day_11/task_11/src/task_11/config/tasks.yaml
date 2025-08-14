@@ -1,0 +1,137 @@
+analysis_task:
+  description: >
+    Conduct a comprehensive analysis of the following LaTeX document for 
+    syntax and formatting errors:
+    
+    ```
+    {latex_content}
+    ```
+    
+    Your analysis should include:
+    
+    1. **Structure Analysis:**
+       - Document class verification
+       - Required package identification
+       - Document environment integrity
+    
+    2. **Syntax Error Detection:**
+       - Unmatched braces, brackets, and parentheses
+       - Unclosed environments
+       - Missing or malformed commands
+       - Invalid command sequences
+    
+    3. **Package and Dependency Analysis:**
+       - Required packages for used commands
+       - Package compatibility issues
+       - Missing usepackage declarations
+    
+    4. **Formatting and Style Issues:**
+       - Inconsistent formatting patterns
+       - Best practice violations
+       - Potential compilation warnings
+    
+    5. **Content Structure Review:**
+       - Proper sectioning hierarchy
+       - Cross-reference integrity
+       - Bibliography and citation format
+    
+    Use the LaTeX Validator tool to perform systematic error detection and provide 
+    detailed findings with severity classifications and specific recommendations for each issue.
+    
+    Focus on both critical errors that prevent compilation and minor issues that affect 
+    document quality or maintainability.
+  expected_output: >
+    A comprehensive LaTeX document analysis report containing:
+    
+    **Executive Summary:**
+    - Overall document health assessment
+    - Critical vs. minor issues breakdown
+    - Compilation likelihood assessment
+    
+    **Detailed Error Analysis:**
+    - Complete list of identified errors with line numbers (where possible)
+    - Error severity classifications (Critical, High, Medium, Low)
+    - Specific error descriptions and explanations
+    - Root cause analysis for complex issues
+    
+    **Package and Structure Review:**
+    - Required packages assessment
+    - Document structure evaluation
+    - Cross-reference and citation analysis
+    
+    **Recommendations:**
+    - Prioritized correction suggestions
+    - Best practice recommendations
+    - Potential improvements for document maintainability
+    
+    All findings should be clearly categorized and actionable for the Document Corrector.
+  agent: document_analyzer
+
+correction_task:
+  description: >
+    Based on the comprehensive analysis report from the Document Analyzer, 
+    correct all identified errors in the following LaTeX document:
+    
+    ```
+    {latex_content}
+    ```
+    
+    Your correction process should address:
+    
+    1. **Critical Error Resolution:**
+       - Fix all syntax errors that prevent compilation
+       - Resolve unmatched braces, brackets, and environments
+       - Correct malformed commands and environments
+    
+    2. **Package Management:**
+       - Add all required usepackage declarations
+       - Ensure proper package ordering and options
+       - Resolve package conflicts if any
+    
+    3. **Structure Optimization:**
+       - Maintain original document intent and content
+       - Improve document structure where beneficial
+       - Ensure proper sectioning hierarchy
+    
+    4. **Best Practices Implementation:**
+       - Apply LaTeX best practices for formatting
+       - Optimize command usage for clarity and maintainability
+       - Ensure cross-platform compatibility
+    
+    5. **Quality Assurance:**
+       - Verify all corrections maintain semantic meaning
+       - Ensure the document will compile successfully
+       - Add explanatory comments for significant changes
+    
+    The corrected document must:
+    - Be syntactically correct and compilable
+    - Preserve all original content and formatting intentions
+    - Follow LaTeX best practices and conventions
+    - Include necessary packages and proper document structure
+    - Be ready for immediate use without further modifications
+  expected_output: >
+    A complete corrected LaTeX document package containing:
+    
+    **Corrected LaTeX Code:**
+    ```
+    [Full corrected document with all fixes applied]
+    ```
+    
+    **Correction Summary:**
+    - List of all corrections made with explanations
+    - Added packages and their purposes
+    - Structural improvements implemented
+    - Best practice enhancements applied
+    
+    **Compilation Notes:**
+    - Required LaTeX distribution features
+    - Recommended compilation sequence
+    - Any special considerations for successful compilation
+    
+    **Change Documentation:**
+    - Major changes marked with explanatory comments
+    - Original problematic code preserved in comments where helpful
+    - Version notes for tracking changes
+    
+    The final document should be production-ready and compile without errors in standard LaTeX environments.
+  agent: document_corrector
