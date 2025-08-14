@@ -1,0 +1,32 @@
+generate_theory_resources:
+  description: >
+    Curate music theory resources for the user based on their instrument and skill level.
+    Focus on high-quality, reputable sources (books, courses, video series, interactive sites).
+    Instrument: {instrument}
+    Skill Level: {skill_level}
+  expected_output: >
+    JSON list of objects with fields: title, type (book/course/video/site), level,
+    instrument, url, reason
+  agent: theory_curator
+
+create_practice_routines:
+  description: >
+    Create a structured practice routine tailored to the user's instrument and skill level.
+    Include warmups, technique, repertoire, ear training, and theory review.
+    Provide durations for each block and total duration per day.
+    Instrument: {instrument}
+    Skill Level: {skill_level}
+  expected_output: >
+    JSON object with fields: daily_blocks (list of {name, description, duration_minutes}),
+    total_minutes, focus_areas (list), recommended_frequency_per_week
+  agent: practice_planner
+
+suggest_performance_projects:
+  description: >
+    Suggest performance projects tailored to the user's instrument and skill level using
+    the Performance Project Tool. Include concrete, achievable ideas with scope, timeline,
+    and success criteria. Instrument: {instrument}, Skill Level: {skill_level}
+  expected_output: >
+    JSON list of objects with fields: title, description, difficulty, timeline_weeks,
+    deliverable, success_criteria
+  agent: project_suggestor
